@@ -27,6 +27,7 @@ struct SportsLayout{
     void compute_allocation(int* mp);
 
     int* greedy_with_restarts();
+    int* generate_random_mapping();
 
 };
 

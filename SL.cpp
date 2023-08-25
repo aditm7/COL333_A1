@@ -2,6 +2,7 @@
 using namespace std;
 using namespace std::chrono;
 mt19937 gen(steady_clock::now().time_since_epoch().count());
+uniform_int_distribution<long long> rnd(0,INT_MAX);
 
 #include "SL.h"
 
@@ -128,23 +129,71 @@ mt19937 gen(steady_clock::now().time_since_epoch().count());
         cout << "Allocation written to the file successfully." << endl;
 
     }
-
-    int* SportsLayout::greedy_with_restarts(){
-        uniform_int_distribution<long long> rnd(0,INT_MAX);
+    
+    int* SportsLayout::generate_random_mapping(){
         int locations[l];
         for(int i=0;i<l;i++) locations[i]=i+1;
         for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)%l]);
         int init_mp[z];
         for(int i=0;i<z;i++) init_mp[i]=locations[i];
-        for(int i=0;i<l;i++){
-            cout<<locations[i]<<" ";
-        }
-        cout<<endl;
-        int* best_mp=init_mp;
-        int best_cost=cost_fn(init_mp);
-
-        
         return init_mp;
+    }
+
+    int* SportsLayout::greedy_with_restarts(){
+
+        int curr_mp[z],curr_cost;
+        int curr_best_mp[z],curr_best_cost;
+        int best_mp[z],best_cost = INT_MAX;
+        
+        auto helper = [&](set<int> &used_locations){
+            for(int i=0;i<z;i++){
+                int curr_location = curr_mp[i];
+                int best_location = curr_location;
+                int best_location_cost = INT_MAX;
+                for(int j=0;j<l;j++){
+                    if(used_locations.find(j+1) == used_locations.end()){
+                        curr_mp[i] = j+1;
+                        curr_cost = cost_fn(curr_mp);
+                        if(curr_cost < best_location_cost){
+                            best_location_cost = curr_cost;
+                            best_location = j+1;
+                        }
+                    }
+                }
+                curr_mp[i] = best_location;
+                used_locations.erase(curr_location);
+                used_locations.insert(best_location);
+            }
+            curr_cost = cost_fn(curr_mp);
+            if(curr_cost < curr_best_cost){
+                curr_best_cost = curr_cost;
+                for(int i=0;i<z;i++)
+                    curr_best_mp[i] = curr_mp[i];
+            }
+        };
+
+        int restarts = 1000;
+        while(restarts--){
+            int* temp = generate_random_mapping();
+            for(int i=0;i<z;i++){
+                curr_mp[i] = temp[i];
+                curr_best_mp[i] = temp[i];
+            }
+            curr_cost = cost_fn(curr_mp);
+            curr_best_cost=cost_fn(curr_best_mp);
+            set<int>used_locations(curr_mp,curr_mp+z);
+            
+            int iterations = 200;
+            while(iterations--){
+                helper(used_locations);
+            }
+            if(curr_best_cost<best_cost){
+                best_cost = curr_best_cost;
+                for(int i=0;i<z;i++)
+                    best_mp[i] = curr_best_mp[i];
+            }
+        }
+        return best_mp;
     }
 
     void SportsLayout::compute_allocation(int* mp)
