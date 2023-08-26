@@ -59,12 +59,12 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
             fstream ipfile;
 	        ipfile.open(inputfilename, ios::in);
             if (!ipfile) {
+
                 cout << "No such file\n";
                 exit( 0 );
             }
             else {
-                
-
+            
                 ipfile>> time;
                 ipfile >> z;
                 ipfile >> l;
@@ -75,39 +75,37 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
                     exit(0);
                 }
 
+                int **tempT;
+                int **tempN;
 
-            
+                tempT = new int*[l];
+                for (int i = 0; i < l; ++i)
+                    tempT[i] = new int[l];
+                
+                tempN = new int*[z];
+                for (int i = 0; i < z; ++i)
+                    tempN[i] = new int[z];
 
-            int **tempT;
-            int **tempN;
+                for(int i=0;i<z;i++)
+                {
+                    for(int j=0;j<z;j++)
+                    ipfile>>tempN[i][j];
+                }
 
-          tempT = new int*[l];
-         for (int i = 0; i < l; ++i)
-            tempT[i] = new int[l];
-        
-        tempN = new int*[z];
-        for (int i = 0; i < z; ++i)
-            tempN[i] = new int[z];
+                for(int i=0;i<l;i++)
+                {
+                    for(int j=0;j<l;j++)
+                    ipfile>>tempT[i][j];
+                }
 
-        for(int i=0;i<z;i++)
-        {
-            for(int j=0;j<z;j++)
-            ipfile>>tempN[i][j];
-        }
+                ipfile.close();
 
-        for(int i=0;i<l;i++)
-        {
-            for(int j=0;j<l;j++)
-            ipfile>>tempT[i][j];
-        }
-
-        ipfile.close();
-
-        T= tempT;
-        N= tempN;
+                T= tempT;
+                N= tempN;
             }
 
     }
+
 
     void SportsLayout::write_to_file(string outputfilename){
 
@@ -131,25 +129,32 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
     }
     
     int* SportsLayout::generate_random_mapping(){
-        int locations[l];
+        int* locations = new int[l];
+
         for(int i=0;i<l;i++) locations[i]=i+1;
+
         for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)%l]);
-        int init_mp[z];
+
+        int* init_mp = new int[z];
+
         for(int i=0;i<z;i++) init_mp[i]=locations[i];
+
         return init_mp;
     }
 
     int* SportsLayout::greedy_with_restarts(){
 
-        int curr_mp[z],curr_cost;
-        int curr_best_mp[z],curr_best_cost;
-        int best_mp[z],best_cost = INT_MAX;
+        int* curr_mp= new int[z];
+        int curr_cost,curr_best_cost,best_cost=INT_MAX;
+        int* curr_best_mp= new int[z];
+        int* best_mp= new int[z];
         
         auto helper = [&](set<int> &used_locations){
             for(int i=0;i<z;i++){
                 int curr_location = curr_mp[i];
                 int best_location = curr_location;
                 int best_location_cost = INT_MAX;
+
                 for(int j=0;j<l;j++){
                     if(used_locations.find(j+1) == used_locations.end()){
                         curr_mp[i] = j+1;
@@ -160,25 +165,32 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
                         }
                     }
                 }
+
                 curr_mp[i] = best_location;
                 used_locations.erase(curr_location);
                 used_locations.insert(best_location);
             }
+
             curr_cost = cost_fn(curr_mp);
+
             if(curr_cost < curr_best_cost){
                 curr_best_cost = curr_cost;
                 for(int i=0;i<z;i++)
                     curr_best_mp[i] = curr_mp[i];
             }
+
         };
 
         int restarts = 1000;
+
         while(restarts--){
             int* temp = generate_random_mapping();
+
             for(int i=0;i<z;i++){
                 curr_mp[i] = temp[i];
                 curr_best_mp[i] = temp[i];
             }
+
             curr_cost = cost_fn(curr_mp);
             curr_best_cost=cost_fn(curr_best_mp);
             set<int>used_locations(curr_mp,curr_mp+z);
