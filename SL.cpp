@@ -181,7 +181,7 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
 
         };
 
-        int restarts = 1000;
+        int restarts = 10000;
 
         while(restarts--){
             int* temp = generate_random_mapping();
