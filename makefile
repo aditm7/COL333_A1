@@ -3,7 +3,7 @@ all: main.cpp SL.cpp
 
 run:
 	g++ -o ./bin/main.out main.cpp SL.cpp -std=c++17
-	./bin/main.out ./io/in.txt ./io/out.txt
+	./bin/main.out ./io_files/in.txt ./io_files/out.txt
 
 gen:
 	g++ ./generator/gen.cpp -o ./bin/gen.out -std=c++17
