@@ -25,10 +25,12 @@ struct SportsLayout{
     void readInInputFile(string inputfilename);
 
     void compute_allocation(int* mp);
-
-    int* greedy_with_restarts();
     
     int* generate_random_mapping();
+
+    void greedy_with_restarts(int* best_mp,int &best_cost);
+
+    int* find_best_mapping();
 
 };
 

@@ -4,6 +4,8 @@ using namespace std::chrono;
 mt19937 gen(steady_clock::now().time_since_epoch().count());
 uniform_int_distribution<long long> rnd(0,INT_MAX);
 
+atomic<bool> exit_flag = false;
+
 #include "SL.h"
 
     SportsLayout::SportsLayout(string inputfilename)
@@ -142,12 +144,17 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
         return init_mp;
     }
 
-    int* SportsLayout::greedy_with_restarts(){
+    void SportsLayout::compute_allocation(int* mp)
+    {
+        for(int i=0;i<z;i++)
+        mapping[i]=mp[i];
+    }
+
+    void SportsLayout::greedy_with_restarts(int* best_mp,int &best_cost){
 
         int* curr_mp= new int[z];
-        int curr_cost,curr_best_cost,best_cost=INT_MAX;
+        int curr_cost,curr_best_cost=INT_MAX;
         int* curr_best_mp= new int[z];
-        int* best_mp= new int[z];
         
         auto helper = [&](set<int> &used_locations){
             for(int i=0;i<z;i++){
@@ -184,6 +191,7 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
         int restarts = 1000;
 
         while(restarts--){
+            if(exit_flag) goto return_point_label;
             int* temp = generate_random_mapping();
 
             for(int i=0;i<z;i++){
@@ -205,13 +213,32 @@ uniform_int_distribution<long long> rnd(0,INT_MAX);
                     best_mp[i] = curr_best_mp[i];
             }
         }
+
+        return_point_label:
+        return;
+    }
+
+    int* SportsLayout::find_best_mapping(){
+        vector<int*> arr_mp;
+        vector<int> arr_costs;
+        
+        // greedy hill climbing with restarts
+        arr_mp.push_back(new int[z]);
+        arr_costs.push_back(INT_MAX);
+        thread t1(&SportsLayout::greedy_with_restarts,this,arr_mp[0],ref(arr_costs[0])); 
+        
+        //signalling all the processes to return after some desired time
+        this_thread::sleep_for(chrono::seconds(time*60 - 1));
+        exit_flag = true;
+        t1.join();
+
+        int best_cost = arr_costs[0];
+        int* best_mp = arr_mp[0];
+        for(int i=1;i<(int)(arr_mp).size();i++){
+            if(best_cost<arr_costs[i]){
+                best_cost = arr_costs[i];
+                best_mp = arr_mp[i];
+            }
+        }
         return best_mp;
     }
-
-    void SportsLayout::compute_allocation(int* mp)
-    {
-        for(int i=0;i<z;i++)
-        mapping[i]=mp[i];
-    }
-
-

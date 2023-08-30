@@ -23,7 +23,7 @@ int main(int argc, char** argv )
     auto start = high_resolution_clock::now();
 
     SportsLayout *s  = new SportsLayout( inputfilename );
-    s->compute_allocation(s->greedy_with_restarts());
+    s->compute_allocation(s->find_best_mapping());
     s->write_to_file(outputfilename);
     
     long long cost = s->cost_fn (s->mapping);
