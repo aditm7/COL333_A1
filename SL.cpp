@@ -227,11 +227,12 @@ atomic<bool> exit_flag = false;
         arr_costs.push_back(INT_MAX);
         thread t1(&SportsLayout::greedy_with_restarts,this,arr_mp[0],ref(arr_costs[0])); 
         
-        //signalling all the processes to return after some desired time
+        // signalling all the processes to exit by returning after the time limit
         this_thread::sleep_for(chrono::seconds(time*60 - 1));
         exit_flag = true;
         t1.join();
 
+        // now computing the best mapping among all algorithms
         int best_cost = arr_costs[0];
         int* best_mp = arr_mp[0];
         for(int i=1;i<(int)(arr_mp).size();i++){
