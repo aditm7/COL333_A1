@@ -31,9 +31,10 @@ int main()
     cin>>l;
     cout<<"enter time:";
     cin>>time;
-    cout<<"enter output file name:";
-    string outputfilename;
-    cin>>outputfilename;
+    cout<<"enter output file name (leave empty for default->in.txt):";
+    string outputfilename = "./../io_files/in.txt";
+    string x;cin>>x;
+    if(x!="") outputfilename = x;
 
     ofstream outputFile(outputfilename);
     if (!outputFile.is_open()) {
@@ -72,4 +73,5 @@ int main()
         writeToFile(&matrix[i][0],l,outputFile);
     }
     outputFile.close();
+    return 0;
 }

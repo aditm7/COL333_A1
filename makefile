@@ -1,5 +1,10 @@
 all: main.cpp SL.cpp
-	  g++ -o main main.cpp SL.cpp -std=c++17
+	  g++ -o ./bin/main main.cpp SL.cpp -std=c++17
 
 run:
-	./main input6.txt out.txt
+	g++ -o ./bin/main main.cpp SL.cpp -std=c++17
+	./bin/main ./io/in.txt ./io/out.txt
+
+gen:
+	g++ ./generator/gen.cpp -o ./bin/gen.cpp -std=c++17
+	./bin/gen.cpp 
