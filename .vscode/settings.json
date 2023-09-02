@@ -1,0 +1,25 @@
+{
+  "files.associations": {
+    "*.html": "html",
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "__tree": "cpp",
+    "atomic": "cpp",
+    "deque": "cpp",
+    "filesystem": "cpp",
+    "forward_list": "cpp",
+    "ios": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "string": "cpp",
+    "system_error": "cpp",
+    "unordered_map": "cpp",
+    "unordered_set": "cpp",
+    "vector": "cpp",
+    "bitset": "cpp",
+    "future": "cpp",
+    "optional": "cpp",
+    "random": "cpp"
+  }
+}

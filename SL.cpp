@@ -163,43 +163,48 @@ atomic<bool> exit_flag = false;
         int* curr_mp= new int[z];
         int curr_cost,curr_best_cost=INT_MAX;
         int* curr_best_mp= new int[z];
-        
-        auto next_state = [&](set<int> &used_locations){
-            for(int i=0;i<z;i++){
-                int curr_location = curr_mp[i];
-                int best_location = curr_location;
-                int best_location_cost = INT_MAX;
+        auto next_state = [&](vector<bool> &used_locations,set<pair<long long,int>> &contri){
+            int i = (*(--contri.end())).second;
+            long long initial_contribution =(*(--contri.end())).first;
+            int curr_location = curr_mp[i];
+            int best_location = curr_location;
+            int best_location_cost = curr_cost;
 
-                for(int j=0;j<l;j++){
-                    if(used_locations.find(j+1) == used_locations.end()){
-                        curr_cost -= find_contribution(curr_mp,i);
-                        curr_mp[i] = j+1;
-                        curr_cost += find_contribution(curr_mp,i);
-                        // curr_cost = cost_fn(curr_mp);
-                        if(curr_cost < best_location_cost){
-                            best_location_cost = curr_cost;
-                            best_location = j+1;
-                        }
+            for(int j=0;j<l;j++){
+                if(!used_locations[j+1]){
+                    curr_cost -= initial_contribution;
+                    curr_mp[i] = j+1;
+                    long long temp_contri = find_contribution(curr_mp,i);
+                    curr_cost += temp_contri;
+
+                    if(curr_cost < best_location_cost){
+                        best_location_cost = curr_cost;
+                        best_location = j+1;
                     }
+                    //rollback the changes
+                    curr_cost -= temp_contri; 
+                    curr_cost += initial_contribution;
+                    curr_mp[i] = curr_location;
                 }
-
-                curr_mp[i] = best_location;
-                used_locations.erase(curr_location);
-                used_locations.insert(best_location);
             }
-
+            
+            curr_mp[i] = best_location;
+            used_locations[curr_location]=false;
+            used_locations[best_location]=true;
+            contri.erase(--contri.end());
+            contri.insert({find_contribution(curr_mp,i),i});
             curr_cost = cost_fn(curr_mp);
 
             if(curr_cost < curr_best_cost){
                 curr_best_cost = curr_cost;
-                for(int i=0;i<z;i++)
-                    curr_best_mp[i] = curr_mp[i];
+                for(int j=0;j<z;j++)
+                    curr_best_mp[j] = curr_mp[j];
             }
 
         };
 
-        int restarts = 1000;
-        set<int>used_locations;
+        int restarts = 2000;
+        vector<bool> used_locations(l+1,false);
 
         while(restarts--){
             if(exit_flag) goto return_point_label;
@@ -211,16 +216,19 @@ atomic<bool> exit_flag = false;
             }
 
             curr_cost = cost_fn(curr_mp);
-            curr_best_cost=cost_fn(curr_best_mp);
+            curr_best_cost=curr_cost;
 
-            used_locations.clear();
+            used_locations.assign(l+1,false);
             for(int i=0;i<z;i++)
-                used_locations.insert(curr_mp[i]);
+                used_locations[curr_mp[i]]=1;
 
-            int iterations = 800;
-            while(iterations--){ 
-                next_state(used_locations);
-            }
+            set<pair<long long,int>> contri;
+            for(int i=0;i<z;i++) contri.insert({find_contribution(curr_mp,i),i});
+
+            int iterations = 1500;
+            while(iterations--)
+                next_state(used_locations,contri);
+
             if(curr_best_cost<best_cost){
                 best_cost = curr_best_cost;
                 for(int i=0;i<z;i++)
