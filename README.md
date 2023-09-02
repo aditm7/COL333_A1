@@ -17,3 +17,5 @@
 - Beam search and genetic algo try out
 - simulated annealing :: change learning rate
 - remove extra print statements (like restarts)
+- change variable types of cost ??
+- generate a more equi-possible random array ?

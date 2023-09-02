@@ -132,9 +132,8 @@ atomic<bool> exit_flag = false;
     int* SportsLayout::generate_random_mapping(){
         int* locations = new int[l];
         for(int i=0;i<l;i++) locations[i]=i+1;
-        shuffle(locations,locations+l,gen);
-        // uniform_int_distribution<long long> rnd(0,l-1);
-        // for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)]);
+        uniform_int_distribution<long long> rnd(0,l-1);
+        for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)]);
         int* init_mp = new int[z];
         for(int i=0;i<z;i++) init_mp[i]=locations[i];
         return init_mp;
@@ -242,54 +241,47 @@ atomic<bool> exit_flag = false;
         int* curr_mp= new int[z];
         int curr_cost,curr_best_cost=INT_MAX;
         int* curr_best_mp= new int[z];
-        double threshold = 0.0;
-        bool rand_flag=false;
-        uniform_int_distribution<int> rnd2(0,z-1);      
+        double threshold = 0.0;        
         auto next_state_greedy = [&](vector<bool> &used_locations,set<pair<long long,int>> &contri,vector<int> &unused_locations){
-            int i = (*(--contri.end())).second;
-            int initial_contribution =(*(--contri.end())).first;
-            if(rand_flag){
-                i=rnd2(gen);
-                initial_contribution = find_contribution(curr_mp,i);
-            }
-            int curr_location = curr_mp[i];
-            int best_location = curr_location;
-            int best_location_cost = curr_cost;
-            int best_location_idx=-1;
-            for(int j=0;j<l-z;j++){
-                curr_cost -= initial_contribution;
-                curr_mp[i] = unused_locations[j];
-                int temp_contri = find_contribution(curr_mp,i);
-                curr_cost += temp_contri;
+            vector<long long> ans(5); // z,unused_loc_idx,ini_contri,final_contri,new_cost
+            ans = {-1,-1,INT_MAX,INT_MAX,curr_best_cost};
+            for(int i=0;i<z;i++){
+                long long initial_contribution = find_contribution(curr_mp,i);
+                int curr_location = curr_mp[i];
+                for(int j=0;j<l-z;j++){
+                    curr_cost -= initial_contribution;
+                    curr_mp[i] = unused_locations[j];
+                    long long temp_contri = find_contribution(curr_mp,i);
+                    curr_cost += temp_contri;
 
-                if(curr_cost < best_location_cost){
-                    best_location_cost = curr_cost;
-                    best_location_idx = j;
-                    best_location = unused_locations[j];
+                    if(curr_cost < ans[4]){
+                        ans = {i,j,initial_contribution,temp_contri,curr_cost};
+                    }
+                    //rollback the changes
+                    curr_cost -= temp_contri; 
+                    curr_cost += initial_contribution;
+                    curr_mp[i] = curr_location;
                 }
-                //rollback the changes
-                curr_cost -= temp_contri; 
-                curr_cost += initial_contribution;
-                curr_mp[i] = curr_location;
             }
-            
-            curr_mp[i] = best_location;
-            used_locations[curr_location]=false;
-            used_locations[best_location]=true;
-            contri.erase({initial_contribution,i});
-            contri.insert({find_contribution(curr_mp,i),i});
-            if(best_location_idx!=-1) unused_locations[best_location_idx]=curr_location;
-            curr_cost = cost_fn(curr_mp);
-
-            if(curr_cost < curr_best_cost){
-                curr_best_cost = curr_cost;
-                for(int j=0;j<z;j++)
-                    curr_best_mp[j] = curr_mp[j];
+            if(ans[0]!=-1){
+                int curr_location=curr_mp[ans[0]];
+                curr_mp[ans[0]] = unused_locations[ans[1]];
+                used_locations[ans[0]]=false;
+                used_locations[unused_locations[ans[1]]]=true;
+                contri.erase({ans[2],ans[0]});
+                contri.insert({ans[3],ans[0]});
+                unused_locations[ans[1]]=curr_location;
+                curr_cost = ans[4];
+                if(curr_cost < curr_best_cost){
+                    curr_best_cost = curr_cost;
+                    for(int j=0;j<z;j++)
+                        curr_best_mp[j] = curr_mp[j];
+                }
             }
-
         };
 
         uniform_real_distribution<double> prob(0.0, 1.0);
+        uniform_int_distribution<int> rnd2(0,z-1);
         uniform_int_distribution<int> rnd3(0,l-z-1);
         auto next_state_random = [&](vector<bool> &used_locations,set<pair<long long,int>> &contri,vector<int> &unused_locations){
             int idx = rnd2(gen);
@@ -324,7 +316,6 @@ atomic<bool> exit_flag = false;
             if(exit_flag) goto return_point_label;
             int* temp = generate_random_mapping();
             threshold = 0.0;
-            rand_flag=false;
             for(int i=0;i<z;i++){
                 curr_mp[i] = temp[i];
                 curr_best_mp[i] = temp[i];
@@ -341,20 +332,11 @@ atomic<bool> exit_flag = false;
             set<pair<long long,int>> contri;
             for(int i=0;i<z;i++) contri.insert({find_contribution(curr_mp,i),i});
 
-            int iterations = 2000;
-            int it=iterations;
+            int iterations = 500;
             while(iterations--){
-                if(prob(gen)>=threshold){
-                    next_state_random(used_locations,contri,unused_locations);
-                    threshold = (double)(it-iterations)/(double)(it*1.0);
-                }
-                else {
-                    int init_bc = curr_best_cost; 
-                    next_state_greedy(used_locations,contri,unused_locations);
-                    if(curr_best_cost>= init_bc) rand_flag=true;
-                    if(curr_best_cost < init_bc) rand_flag=false;
-                    threshold = (double)(it-iterations)/(double)(it*1.0);
-                }
+                if(prob(gen)>=threshold) next_state_random(used_locations,contri,unused_locations);
+                else next_state_greedy(used_locations,contri,unused_locations);
+                threshold += double(1.0/iterations);
             }
 
             if(curr_best_cost<best_cost){
