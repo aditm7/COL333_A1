@@ -11,3 +11,8 @@
   - Next the main process (from which all threads are called) is then is brought to sync, by joining all the threads to it. This means now the main thread will wait for all the threads called to be exited.
   - Exit flag comes in action here. Using goto keyword, the functions are jumped to their respective return_point_labels.
   - Finally the best mapping is returned.
+
+## To-do
+- Change restarts and iterations according to the input
+- Beam search and genetic algo try out
+- simulated annealing ??

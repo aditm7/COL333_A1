@@ -203,7 +203,7 @@ atomic<bool> exit_flag = false;
 
         };
 
-        int restarts = 2000;
+        int restarts = 10000;
         vector<bool> used_locations(l+1,false);
 
         while(restarts--){
@@ -225,7 +225,7 @@ atomic<bool> exit_flag = false;
             set<pair<long long,int>> contri;
             for(int i=0;i<z;i++) contri.insert({find_contribution(curr_mp,i),i});
 
-            int iterations = 1500;
+            int iterations = 20000;
             while(iterations--)
                 next_state(used_locations,contri);
 
