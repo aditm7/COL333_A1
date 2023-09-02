@@ -249,23 +249,22 @@ atomic<bool> exit_flag = false;
             int curr_location = curr_mp[i];
             int best_location = curr_location;
             int best_location_cost = curr_cost;
+            int best_location_idx=-1;
+            for(int j=0;j<l-z;j++){
+                curr_cost -= initial_contribution;
+                curr_mp[i] = unused_locations[j];
+                long long temp_contri = find_contribution(curr_mp,i);
+                curr_cost += temp_contri;
 
-            for(int j=0;j<l;j++){
-                if(!used_locations[j+1]){
-                    curr_cost -= initial_contribution;
-                    curr_mp[i] = j+1;
-                    long long temp_contri = find_contribution(curr_mp,i);
-                    curr_cost += temp_contri;
-
-                    if(curr_cost < best_location_cost){
-                        best_location_cost = curr_cost;
-                        best_location = j+1;
-                    }
-                    //rollback the changes
-                    curr_cost -= temp_contri; 
-                    curr_cost += initial_contribution;
-                    curr_mp[i] = curr_location;
+                if(curr_cost < best_location_cost){
+                    best_location_cost = curr_cost;
+                    best_location_idx = j;
+                    best_location = unused_locations[j];
                 }
+                //rollback the changes
+                curr_cost -= temp_contri; 
+                curr_cost += initial_contribution;
+                curr_mp[i] = curr_location;
             }
             
             curr_mp[i] = best_location;
@@ -273,6 +272,7 @@ atomic<bool> exit_flag = false;
             used_locations[best_location]=true;
             contri.erase({initial_contribution,i});
             contri.insert({find_contribution(curr_mp,i),i});
+            if(best_location_idx!=-1) unused_locations[best_location_idx]=curr_location;
             curr_cost = cost_fn(curr_mp);
 
             if(curr_cost < curr_best_cost){
@@ -335,7 +335,7 @@ atomic<bool> exit_flag = false;
             set<pair<long long,int>> contri;
             for(int i=0;i<z;i++) contri.insert({find_contribution(curr_mp,i),i});
 
-            int iterations = 2000;
+            int iterations = 4000;
             while(iterations--){
                 if(prob(gen)>=threshold) next_state_random(used_locations,contri,unused_locations);
                 else next_state_greedy(used_locations,contri,unused_locations);
