@@ -156,7 +156,7 @@ atomic<bool> exit_flag = false;
         int curr_cost,curr_best_cost=INT_MAX;
         int* curr_best_mp= new int[z];
         
-        auto helper = [&](set<int> &used_locations){
+        auto next_state = [&](set<int> &used_locations){
             for(int i=0;i<z;i++){
                 int curr_location = curr_mp[i];
                 int best_location = curr_location;
@@ -189,6 +189,7 @@ atomic<bool> exit_flag = false;
         };
 
         int restarts = 1000;
+        set<int>used_locations;
 
         while(restarts--){
             if(exit_flag) goto return_point_label;
@@ -201,11 +202,15 @@ atomic<bool> exit_flag = false;
 
             curr_cost = cost_fn(curr_mp);
             curr_best_cost=cost_fn(curr_best_mp);
-            set<int>used_locations(curr_mp,curr_mp+z);
+
+            used_locations.clear();
             
-            int iterations = 200;
+            for(int i=0;i<z;i++)
+                used_locations.insert(curr_mp[i]);
+
+            int iterations = 20;
             while(iterations--){
-                helper(used_locations);
+                next_state(used_locations);
             }
             if(curr_best_cost<best_cost){
                 best_cost = curr_best_cost;
@@ -213,7 +218,7 @@ atomic<bool> exit_flag = false;
                     best_mp[i] = curr_best_mp[i];
             }
         }
-
+        
         return_point_label:
         return;
     }
