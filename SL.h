@@ -31,6 +31,8 @@ struct SportsLayout{
     void greedy_with_restarts(int* best_mp,int &best_cost);
 
     int* find_best_mapping();
+    
+    long long SportsLayout::find_contribution(int* mp,int idx);
 
 };
 

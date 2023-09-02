@@ -149,6 +149,13 @@ atomic<bool> exit_flag = false;
         for(int i=0;i<z;i++)
         mapping[i]=mp[i];
     }
+    long long SportsLayout::find_contribution(int* mp,int idx){
+        long long ans=0;
+        for(int i=0;i<z;i++){
+            ans+=((long long)N[i][idx]+(long long)N[idx][i])*(long long)T[mp[i]-1][mp[idx]-1];
+        }
+        return ans;
+    }
 
     void SportsLayout::greedy_with_restarts(int* best_mp,int &best_cost){
 
@@ -204,7 +211,7 @@ atomic<bool> exit_flag = false;
             set<int>used_locations(curr_mp,curr_mp+z);
             
             int iterations = 200;
-            while(iterations--){
+            while(iterations--){ 
                 helper(used_locations);
             }
             if(curr_best_cost<best_cost){
