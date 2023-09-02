@@ -15,4 +15,5 @@
 ## To-do
 - Change restarts and iterations according to the input
 - Beam search and genetic algo try out
-- simulated annealing ??
+- simulated annealing :: change learning rate
+- remove extra print statements (like restarts)
