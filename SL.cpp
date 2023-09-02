@@ -149,6 +149,7 @@ atomic<bool> exit_flag = false;
         for(int i=0;i<z;i++)
         mapping[i]=mp[i];
     }
+    
     long long SportsLayout::find_contribution(int* mp,int idx){
         long long ans=0;
         for(int i=0;i<z;i++){
@@ -171,8 +172,10 @@ atomic<bool> exit_flag = false;
 
                 for(int j=0;j<l;j++){
                     if(used_locations.find(j+1) == used_locations.end()){
+                        curr_cost -= find_contribution(curr_mp,i);
                         curr_mp[i] = j+1;
-                        curr_cost = cost_fn(curr_mp);
+                        curr_cost += find_contribution(curr_mp,i);
+                        // curr_cost = cost_fn(curr_mp);
                         if(curr_cost < best_location_cost){
                             best_location_cost = curr_cost;
                             best_location = j+1;
@@ -211,11 +214,10 @@ atomic<bool> exit_flag = false;
             curr_best_cost=cost_fn(curr_best_mp);
 
             used_locations.clear();
-            
             for(int i=0;i<z;i++)
                 used_locations.insert(curr_mp[i]);
 
-            int iterations = 20;
+            int iterations = 800;
             while(iterations--){ 
                 next_state(used_locations);
             }
@@ -227,6 +229,7 @@ atomic<bool> exit_flag = false;
         }
         
         return_point_label:
+        cout<<restarts<<endl;
         return;
     }
 

@@ -26,13 +26,13 @@ struct SportsLayout{
 
     void compute_allocation(int* mp);
     
+    long long find_contribution(int* mp,int idx);
+
     int* generate_random_mapping();
 
     void greedy_with_restarts(int* best_mp,int &best_cost);
 
     int* find_best_mapping();
-    
-    long long SportsLayout::find_contribution(int* mp,int idx);
 
 };
 
