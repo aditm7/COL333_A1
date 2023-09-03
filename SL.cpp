@@ -3,9 +3,9 @@ using namespace std;
 using namespace std::chrono;
 mt19937 gen(steady_clock::now().time_since_epoch().count());
 
-atomic<bool> exit_flag = false;
 
 #include "SL.h"
+atomic<bool> exit_flag = false;
 
 SportsLayout::SportsLayout(string inputfilename)
 {
@@ -445,7 +445,7 @@ void SportsLayout::beam_search(int *best_mp, int &best_cost)
 {
 
     int iterations = 2000;
-    int beam_width = 50;
+    int beam_width = 80;
     set<pair<long long,int *>>bestk;
     for(int i=0;i<beam_width;i++)
     {   
@@ -460,8 +460,7 @@ void SportsLayout::beam_search(int *best_mp, int &best_cost)
             goto return_point_label;
         
         kstates.clear();
-        while(kstates.size()!=beam_width)
-        {
+        for(int i=0;i<beam_width;i++){
             kstates.push_back(*bestk.begin());
             bestk.erase(bestk.begin());
         }
@@ -477,19 +476,13 @@ void SportsLayout::beam_search(int *best_mp, int &best_cost)
                     best_mp[i]=cur_state[i];
             }
 
-            set<pair<long long, int>>kneighbours;
+            vector<pair<long long, int>>neighbours;
             for(int i=0;i<z;i++)
             {
                 long long temp_contri=find_contribution(cur_state,i);
-                kneighbours.insert({temp_contri,i});
+                neighbours.push_back({temp_contri,i});
             }
-            vector<pair<long long,int>>bestkneighbours(beam_width);
-            for(int i=0;i<beam_width;i++)
-            {
-                bestkneighbours[i]=*(kneighbours.begin());
-                kneighbours.erase(kneighbours.begin());
-            }
-            for(auto it2: bestkneighbours)
+            for(auto it2: neighbours)
             {
                 vector<bool>used_locations(l+1,false);
                 for(int i=0;i<z;i++)
@@ -517,7 +510,7 @@ int *SportsLayout::find_best_mapping()
     // greedy hill climbing with restarts
     arr_mp.push_back(new int[z]);
     arr_costs.push_back(INT_MAX);
-    thread t1(&SportsLayout::beam_search, this, arr_mp[0], ref(arr_costs[0]));
+    thread t1(&SportsLayout::simulated_annealing, this, arr_mp[0], ref(arr_costs[0]));
 
     // signalling all the processes to exit by returning after the time limit
     this_thread::sleep_for(chrono::seconds(time * 60 - 1));
