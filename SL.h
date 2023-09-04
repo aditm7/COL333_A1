@@ -18,7 +18,7 @@ struct SportsLayout{
 
     bool check_output_format();
     
-    long long cost_fn(int* mp);
+    int cost_fn(int* mp);
 
     void write_to_file(string outputfilename);
 
@@ -26,7 +26,7 @@ struct SportsLayout{
 
     void compute_allocation(int* mp);
     
-    long long find_contribution(int* mp,int idx);
+    int find_contribution(int* mp,int idx);
 
     int* generate_random_mapping();
 
@@ -38,7 +38,7 @@ struct SportsLayout{
 
     void beam_search(int* best_mp,int &best_cost);
 
-    pair<long long , int *>next_state(vector<bool> & used_locations, int * curr_mp, int & curr_cost, int beam_width, int idx, int contri);
+    pair<int , int *>next_state(vector<bool> & used_locations, int * curr_mp, int & curr_cost, int beam_width, int idx, int contri);
 };
 
 
