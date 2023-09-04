@@ -21,7 +21,8 @@
     "future": "cpp",
     "optional": "cpp",
     "random": "cpp",
-    "__bit_reference": "cpp"
+    "__bit_reference": "cpp",
+    "chrono": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
