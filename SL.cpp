@@ -415,7 +415,7 @@ long long SportsLayout::find_contribution(int *mp, int idx)
 
         return;
     }
-
+}
 
     int * SportsLayout::find_best_mapping()
     {
