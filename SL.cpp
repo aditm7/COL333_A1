@@ -497,11 +497,6 @@ return_point_label:
     return;
 }
 
-
-
-
-
-
 int *SportsLayout::find_best_mapping()
 {
     vector<int *> arr_mp;
