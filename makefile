@@ -1,8 +1,8 @@
-all: main.cpp SL.cpp
-	  g++ -o ./bin/main.out main.cpp SL.cpp -std=c++17
+all: main.cpp temp_adit.cpp
+	  g++ -o ./bin/main.out main.cpp temp_adit.cpp -std=c++17
 
 run:
-	g++ -o ./bin/main.out main.cpp SL.cpp -std=c++17
+	g++ -o ./bin/main.out main.cpp temp_adit.cpp -std=c++17
 	./bin/main.out ./io_files/in.txt ./io_files/out.txt
 
 gen:

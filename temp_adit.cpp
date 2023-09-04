@@ -3,156 +3,159 @@ using namespace std;
 using namespace std::chrono;
 mt19937 gen(steady_clock::now().time_since_epoch().count());
 
+#include "SL.h"
 atomic<bool> exit_flag = false;
 
-#include "SL.h"
+SportsLayout::SportsLayout(string inputfilename)
+{
 
-    SportsLayout::SportsLayout(string inputfilename)
+    readInInputFile(inputfilename);
+    mapping = new int[z];
+}
+
+bool SportsLayout::check_output_format()
+{
+
+    vector<bool> visited(l, false);
+    for (int i = 0; i < z; i++)
     {
-          
-        readInInputFile(inputfilename);
-        mapping= new int[z];
-
-    }
-
-    bool SportsLayout::check_output_format()
-    {
-
-        vector<bool> visited(l,false);
-        for(int i=0;i<z;i++)
+        if ((mapping[i] >= 1 && mapping[i] <= l))
         {
-            if((mapping[i]>=1 && mapping[i]<=l))
-            {
-                if(!visited[mapping[i]-1])
-                visited[mapping[i]-1]=true;
-                else
-                {
-                    cout<<"Repeated locations, check format\n";
-                    return false;
-                }
-            }
+            if (!visited[mapping[i] - 1])
+                visited[mapping[i] - 1] = true;
             else
             {
-                cout<<"Invalid location, check format\n";
+                cout << "Repeated locations, check format\n";
                 return false;
             }
         }
-
-        return true;
-
-    }
-
-
-    long long SportsLayout::cost_fn(int* mp){
-        long long cost=0;
-        for(int i=0;i<z;i++)
+        else
         {
-           for(int j=i+1;j<z;j++) 
-           {
-                cost+=((long long)N[i][j]+(long long)N[j][i])*(long long)T[mp[i]-1][mp[j]-1];
-           }
+            cout << "Invalid location, check format\n";
+            return false;
         }
-        return cost;
     }
 
-    void SportsLayout::readInInputFile(string inputfilename)
+    return true;
+}
+
+int SportsLayout::cost_fn(int *mp)
+{
+    int cost = 0;
+    for (int i = 0; i < z; i++)
     {
-            fstream ipfile;
-	        ipfile.open(inputfilename, ios::in);
-            if (!ipfile) {
-
-                cout << "No such file\n";
-                exit( 0 );
-            }
-            else {
-            
-                ipfile>> time;
-                ipfile >> z;
-                ipfile >> l;
-
-                if(z>l)
-                {
-                    cout<<"Number of zones more than locations, check format of input file\n";
-                    exit(0);
-                }
-
-                int **tempT;
-                int **tempN;
-
-                tempT = new int*[l];
-                for (int i = 0; i < l; ++i)
-                    tempT[i] = new int[l];
-                
-                tempN = new int*[z];
-                for (int i = 0; i < z; ++i)
-                    tempN[i] = new int[z];
-
-                for(int i=0;i<z;i++)
-                {
-                    for(int j=0;j<z;j++)
-                    ipfile>>tempN[i][j];
-                }
-
-                for(int i=0;i<l;i++)
-                {
-                    for(int j=0;j<l;j++)
-                    ipfile>>tempT[i][j];
-                }
-
-                ipfile.close();
-
-                T= tempT;
-                N= tempN;
-            }
-
+        for (int j = i + 1; j < z; j++)
+        {
+            cost += (N[i][j] + N[j][i]) * T[mp[i] - 1][mp[j] - 1];
+        }
     }
+    return cost;
+}
 
+void SportsLayout::readInInputFile(string inputfilename)
+{
+    fstream ipfile;
+    ipfile.open(inputfilename, ios::in);
+    if (!ipfile)
+    {
 
-    void SportsLayout::write_to_file(string outputfilename){
+        cout << "No such file\n";
+        exit(0);
+    }
+    else
+    {
 
-         // Open the file for writing
-        ofstream outputFile(outputfilename);
+        ipfile >> time;
+        ipfile >> z;
+        ipfile >> l;
 
-        // Check if the file is opened successfully
-        if (!outputFile.is_open()) {
-            cerr << "Failed to open the file for writing." << std::endl;
+        if (z > l)
+        {
+            cout << "Number of zones more than locations, check format of input file\n";
             exit(0);
         }
 
-        for(int i=0;i<z;i++)
-        outputFile<<mapping[i]<<" ";
+        int **tempT;
+        int **tempN;
 
-        // Close the file
-        outputFile.close();
+        tempT = new int *[l];
+        for (int i = 0; i < l; ++i)
+            tempT[i] = new int[l];
 
-        cout << "Allocation written to the file successfully." << endl;
+        tempN = new int *[z];
+        for (int i = 0; i < z; ++i)
+            tempN[i] = new int[z];
 
-    }
-    
-    int* SportsLayout::generate_random_mapping(){
-        int* locations = new int[l];
-        for(int i=0;i<l;i++) locations[i]=i+1;
-        shuffle(locations,locations+l,gen);
-        // uniform_int_distribution<long long> rnd(0,l-1);
-        // for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)]);
-        int* init_mp = new int[z];
-        for(int i=0;i<z;i++) init_mp[i]=locations[i];
-        return init_mp;
-    }
-
-    void SportsLayout::compute_allocation(int* mp)
-    {
-        for(int i=0;i<z;i++)
-        mapping[i]=mp[i];
-    }
-    
-    long long SportsLayout::find_contribution(int* mp,int idx){
-        long long ans=0;
-        for(int i=0;i<z;i++){
-            ans+=((long long)N[i][idx]+(long long)N[idx][i])*(long long)T[mp[i]-1][mp[idx]-1];
+        for (int i = 0; i < z; i++)
+        {
+            for (int j = 0; j < z; j++)
+                ipfile >> tempN[i][j];
         }
-        return ans;
+
+        for (int i = 0; i < l; i++)
+        {
+            for (int j = 0; j < l; j++)
+                ipfile >> tempT[i][j];
+        }
+
+        ipfile.close();
+
+        T = tempT;
+        N = tempN;
     }
+}
+
+void SportsLayout::write_to_file(string outputfilename)
+{
+
+    // Open the file for writing
+    ofstream outputFile(outputfilename);
+
+    // Check if the file is opened successfully
+    if (!outputFile.is_open())
+    {
+        cerr << "Failed to open the file for writing." << std::endl;
+        exit(0);
+    }
+
+    for (int i = 0; i < z; i++)
+        outputFile << mapping[i] << " ";
+
+    // Close the file
+    outputFile.close();
+
+    cout << "Allocation written to the file successfully." << endl;
+}
+
+int *SportsLayout::generate_random_mapping()
+{
+    int *locations = new int[l];
+    for (int i = 0; i < l; i++)
+        locations[i] = i + 1;
+    shuffle(locations, locations + l, gen);
+    // uniform_int_distribution<long long> rnd(0,l-1);
+    // for(int i=0;i<l;i++) swap(locations[i],locations[rnd(gen)]);
+    int *init_mp = new int[z];
+    for (int i = 0; i < z; i++)
+        init_mp[i] = locations[i];
+    return init_mp;
+}
+
+void SportsLayout::compute_allocation(int *mp)
+{
+    for (int i = 0; i < z; i++)
+        mapping[i] = mp[i];
+}
+
+int SportsLayout::find_contribution(int *mp, int idx)
+{
+    int ans = 0;
+    for (int i = 0; i < z; i++)
+    {
+        ans += (N[i][idx] + N[idx][i]) * T[mp[i] - 1][mp[idx] - 1];
+    }
+    return ans;
+}
 
   void SportsLayout::simulated_annealing(int* best_mp,int &best_cost){
 

@@ -3,7 +3,6 @@ using namespace std;
 using namespace std::chrono;
 mt19937 gen(steady_clock::now().time_since_epoch().count());
 
-
 #include "SL.h"
 atomic<bool> exit_flag = false;
 
@@ -40,14 +39,14 @@ bool SportsLayout::check_output_format()
     return true;
 }
 
-long long SportsLayout::cost_fn(int *mp)
+int SportsLayout::cost_fn(int *mp)
 {
-    long long cost = 0;
+    int cost = 0;
     for (int i = 0; i < z; i++)
     {
         for (int j = i + 1; j < z; j++)
         {
-            cost += ((long long)N[i][j] + (long long)N[j][i]) * (long long)T[mp[i] - 1][mp[j] - 1];
+            cost += (N[i][j] + N[j][i]) * T[mp[i] - 1][mp[j] - 1];
         }
     }
     return cost;
@@ -148,12 +147,12 @@ void SportsLayout::compute_allocation(int *mp)
         mapping[i] = mp[i];
 }
 
-long long SportsLayout::find_contribution(int *mp, int idx)
+int SportsLayout::find_contribution(int *mp, int idx)
 {
-    long long ans = 0;
+    int ans = 0;
     for (int i = 0; i < z; i++)
     {
-        ans += ((long long)N[i][idx] + (long long)N[idx][i]) * (long long)T[mp[i] - 1][mp[idx] - 1];
+        ans += (N[i][idx] + N[idx][i]) * T[mp[i] - 1][mp[idx] - 1];
     }
     return ans;
 }
@@ -342,7 +341,7 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
         }
     };
 
-    int restarts = 5000;
+    int restarts = 1e7;
     vector<bool> used_locations(l + 1, false);
     vector<int> unused_locations;
     while (restarts--)
@@ -357,9 +356,12 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
             curr_mp[i] = temp[i];
             curr_best_mp[i] = temp[i];
         }
-
         curr_cost = cost_fn(curr_mp);
         curr_best_cost = curr_cost;
+        int sig_thresh = 0.0;
+        double sigmoid_prob = 1.0/(1.0+exp((-best_cost+curr_cost)));
+        if(sigmoid_prob<=sig_thresh) continue;
+        sig_thresh += 0.00001;
 
         used_locations.assign(l + 1, false);
         for (int i = 0; i < z; i++)
@@ -372,7 +374,7 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
         for (int i = 0; i < z; i++)
             contri.insert({find_contribution(curr_mp, i), i});
 
-        int iterations = 2000;
+        int iterations = 2500;
         int it = iterations;
         while (iterations--)
         {
@@ -385,10 +387,8 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
             {
                 int init_bc = curr_best_cost;
                 next_state_greedy(used_locations, contri, unused_locations);
-                if (curr_best_cost >= init_bc)
-                    rand_flag = true;
-                if (curr_best_cost < init_bc)
-                    rand_flag = false;
+                if (curr_best_cost >= init_bc) threshold=0.0;
+                else if (curr_best_cost < init_bc) rand_flag = false;
                 threshold = (double)(it - iterations) / (double)(it * 1.0);
             }
         }
@@ -406,96 +406,40 @@ return_point_label:
     return;
 }
 
-pair<long long , int *> SportsLayout:: next_state(vector<bool> & used_locations, int * curr_mp, int & curr_cost, int beam_width, int idx, int contri)
-{
-    int * new_mp= new int [z];
-    for(int i=0;i<z;i++)
-        new_mp[i]=curr_mp[i];
-    int new_cost=curr_cost;
-    int curr_location = new_mp[idx];
-    int best_location = curr_location;
-    int best_location_cost = new_cost;
-    for(int j=0;j<l;j++)
-    {
-        if(!used_locations[j+1])
-        {
-            new_cost -= contri;
-            new_mp[idx] = j + 1;
-            long long temp_contri = find_contribution(new_mp, idx);
-            new_cost += temp_contri;
+// pair<long long , int *> SportsLayout:: next_state(vector<bool> & used_locations, int * curr_mp, int & curr_cost, int beam_width, int idx, int contri)
+// {
+//     int * new_mp= new int [z];
+//     for(int i=0;i<z;i++)
+//         new_mp[i]=curr_mp[i];
+//     int new_cost=curr_cost;
+//     int curr_location = new_mp[idx];
+//     int best_location = curr_location;
+//     int best_location_cost = new_cost;
+//     for(int j=0;j<l;j++)
+//     {
+//         if(!used_locations[j+1])
+//         {
+//             new_cost -= contri;
+//             new_mp[idx] = j + 1;
+//             long long temp_contri = find_contribution(new_mp, idx);
+//             new_cost += temp_contri;
 
-            if (new_cost < best_location_cost)
-            {
-                best_location_cost = new_cost;
-                best_location = j + 1;
-            }
-                // rollback the changes
-                new_cost -= temp_contri;
-                new_cost += contri;
-                new_mp[idx] = curr_location;
-        }
-    }
-    new_mp[idx] = best_location;
-    new_cost=cost_fn(new_mp);
-    return {new_cost,new_mp};
-}
+//             if (new_cost < best_location_cost)
+//             {
+//                 best_location_cost = new_cost;
+//                 best_location = j + 1;
+//             }
+//                 // rollback the changes
+//                 new_cost -= temp_contri;
+//                 new_cost += contri;
+//                 new_mp[idx] = curr_location;
+//         }
+//     }
+//     new_mp[idx] = best_location;
+//     new_cost=cost_fn(new_mp);
+//     return {new_cost,new_mp};
+// }
 
-
-void SportsLayout::beam_search(int *best_mp, int &best_cost)
-{
-
-    int iterations = 2000;
-    int beam_width = 80;
-    set<pair<long long,int *>>bestk;
-    for(int i=0;i<beam_width;i++)
-    {   
-        int *temp = generate_random_mapping();
-        bestk.insert({cost_fn(temp),temp});
-    }
-    vector<pair<long long,int *>>kstates;
-
-    while (iterations--)
-    {
-        if (exit_flag)
-            goto return_point_label;
-        
-        kstates.clear();
-        for(int i=0;i<beam_width;i++){
-            kstates.push_back(*bestk.begin());
-            bestk.erase(bestk.begin());
-        }
-        bestk.clear();
-        for(auto it: kstates)
-        {
-            int cur_state_cost=it.first;
-            int * cur_state = it.second;
-            if(cur_state_cost<best_cost)
-            {
-                best_cost=cur_state_cost;
-                for(int i=0;i<z;i++)
-                    best_mp[i]=cur_state[i];
-            }
-
-            vector<pair<long long, int>>neighbours;
-            for(int i=0;i<z;i++)
-            {
-                long long temp_contri=find_contribution(cur_state,i);
-                neighbours.push_back({temp_contri,i});
-            }
-            for(auto it2: neighbours)
-            {
-                vector<bool>used_locations(l+1,false);
-                for(int i=0;i<z;i++)
-                    used_locations[cur_state[i]]=1;
-                bestk.insert(next_state(used_locations,cur_state,cur_state_cost,beam_width,it2.second,it2.first));
-            }
-        }
-    }
-
-return_point_label:
-    cout << iterations << endl;
-    return;
-}
 
 int *SportsLayout::find_best_mapping()
 {
@@ -508,7 +452,8 @@ int *SportsLayout::find_best_mapping()
     thread t1(&SportsLayout::simulated_annealing, this, arr_mp[0], ref(arr_costs[0]));
 
     // signalling all the processes to exit by returning after the time limit
-    this_thread::sleep_for(chrono::seconds(time * 60 - 1));
+    chrono::duration<double> sleep_duration(time*60.0-1.0);
+    this_thread::sleep_for(sleep_duration);
     exit_flag = true;
     t1.join();
 

@@ -14,10 +14,8 @@
 
 ## To-do
 - Change restarts and iterations according to the input
-- Beam search and genetic algo try out
 - simulated annealing :: change learning rate
 - remove extra print statements (like restarts)
 - change variable types of cost ??
 - generate a more equi-possible random array ?
-- try to add some randomness to beam search
 - can we have a better random mapping
