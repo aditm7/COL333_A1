@@ -28,11 +28,7 @@ int main(int argc, char** argv )
     long long cost = s->cost_fn (s->mapping);
     cout<< "cost:"<<cost<<endl;
 
-    bool flag=true;
-    set<int> locations_mapped(s->mapping,s->mapping+s->z);
-    flag &= locations_mapped.size()==s->z;
-    if(!flag) cout<<"non-distinct values in the output!!"<<endl;
-    else cout<<"correct output format"<<endl;
+    s->check_output_format();
     
     auto stop = high_resolution_clock::now();auto duration = duration_cast<milliseconds>(stop - start);
     cout << "Time taken: "<< duration.count() << " ms" << endl;
