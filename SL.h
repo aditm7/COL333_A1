@@ -35,6 +35,10 @@ struct SportsLayout{
     int* find_best_mapping();
     
     void simulated_annealing(int* best_mp,int &best_cost);
+
+    void beam_search(int* best_mp,int &best_cost);
+
+    pair<long long , int *>next_state(vector<bool> & used_locations, int * curr_mp, int & curr_cost, int beam_width, int idx, int contri);
 };
 
 

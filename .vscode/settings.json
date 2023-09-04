@@ -22,5 +22,6 @@
     "optional": "cpp",
     "random": "cpp",
     "__bit_reference": "cpp"
-  }
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

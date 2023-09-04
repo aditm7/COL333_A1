@@ -19,3 +19,5 @@
 - remove extra print statements (like restarts)
 - change variable types of cost ??
 - generate a more equi-possible random array ?
+- try to add some randomness to beam search
+- can we have a better random mapping
