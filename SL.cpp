@@ -149,16 +149,17 @@ mt19937 gen(steady_clock::now().time_since_epoch().count());
         auto start = high_resolution_clock::now();
         double time_var=(time*1.0*60-1)*1000;
         int *curr_mp = new int[z];
-        int curr_cost, curr_best_cost = INT_MAX;
+        long long curr_cost, curr_best_cost = INT_MAX;
         int *curr_best_mp = new int[z];
 
-        auto next_state = [&](vector<bool> &used_locations, set<pair<long long, int>> &contri)
+        auto next_state_greedy = [&](vector<bool> &used_locations, set<pair<long long, int>> &contri)
         {
-            int i = (*(--contri.end())).second;
-            long long initial_contribution = (*(--contri.end())).first;
+            pair<long long,int>pr=*(--contri.end());
+            int i = pr.second;
+            long long initial_contribution = pr.first;
             int curr_location = curr_mp[i];
             int best_location = curr_location;
-            int best_location_cost = curr_cost;
+            long long best_location_cost = curr_cost;
 
             for (int j = 0; j < l; j++)
             {
@@ -195,6 +196,7 @@ mt19937 gen(steady_clock::now().time_since_epoch().count());
                     curr_best_mp[j] = curr_mp[j];
             }
         };
+        
 
         vector<bool> used_locations(l + 1, false);
         auto globalstop = high_resolution_clock::now();
@@ -228,7 +230,9 @@ mt19937 gen(steady_clock::now().time_since_epoch().count());
                 auto duration = duration_cast<milliseconds>(stop - start);
                 if(duration.count()>=time_var)
                     return;
-                next_state(used_locations, contri);
+
+                next_state_greedy(used_locations, contri);
+
             }
                 
 
