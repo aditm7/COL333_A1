@@ -1,11 +1,4 @@
-#include <iostream>
-#include <bits/stdc++.h>
-#include <fstream>
-
 #include "SL.h"
-
-using namespace std;
-using namespace std::chrono;
 
 int main(int argc, char** argv )
 {

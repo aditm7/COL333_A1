@@ -1,11 +1,10 @@
-
 #ifndef SPORTSLAYOUT_H
 #define	SPORTSLAYOUT_H
 
-#include <fstream>
-#include <iostream>
 #include <bits/stdc++.h>
 using namespace std;
+using namespace std::chrono;
+extern mt19937 gen;
 
 struct SportsLayout{
     int z,l;
@@ -13,7 +12,7 @@ struct SportsLayout{
     int **N;
     double time;
     int *mapping;
-    
+
     SportsLayout(string inputfilename);
 
     bool check_output_format();
@@ -30,9 +29,9 @@ struct SportsLayout{
 
     int* generate_random_mapping();
 
-    void greedy_with_restarts(int* best_mp,int &best_cost);
-
     int* find_best_mapping();
+    
+    void greedy_with_restarts(int* best_mp,int &best_cost);
     
     void simulated_annealing(int* best_mp,int &best_cost);
 
