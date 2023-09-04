@@ -11,7 +11,7 @@ struct SportsLayout{
     int z,l;
     int** T;
     int **N;
-    int time;
+    double time;
     int *mapping;
     
     SportsLayout(string inputfilename);
