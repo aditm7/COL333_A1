@@ -163,5 +163,5 @@ long long SportsLayout::find_contribution(int *mp, int idx)
 bool SportsLayout::exit_indicator(){ //returns true when it is time to exit
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
-    return duration.count() >= (double)((time * 1.0 * 60 - 1) * 1000);
+    return duration.count() >= (double)((time * 1.0 * 60 - 0.3) * 1000);
 }
