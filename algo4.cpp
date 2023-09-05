@@ -181,7 +181,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
     for (int i = 0; i < z; i++)
       contri.insert({find_contribution(curr_mp, i), i});
 
-    int iterations = 5000;
+    int iterations = this->it;
 
     while (iterations--)
     {
