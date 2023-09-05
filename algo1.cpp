@@ -90,7 +90,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
     for (int i = 0; i < z; i++)
       contri.insert({find_contribution(curr_mp, i), i});
 
-    int iterations = 5000;
+    int iterations = 1000;
 
     while (iterations--)
     {
@@ -102,7 +102,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
       int init_bc = curr_best_cost; 
       next_state_greedy(used_locations, contri);
       if(curr_best_cost>= init_bc) rand_flag=true;
-      if(curr_best_cost < init_bc) rand_flag=false;
+      // if(curr_best_cost < init_bc) rand_flag=false;
     }
 
   exit_label:
