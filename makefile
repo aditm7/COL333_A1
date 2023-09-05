@@ -13,3 +13,7 @@ gen:
 test%:
 	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
 	./automate.sh
+
+zip:
+	cp algo4.cpp algo.cpp
+	zip -jo 2020EE10458_2020EE10490.zip SL.h SL.cpp main.cpp algo.cpp compile.sh run.sh writeup.txt

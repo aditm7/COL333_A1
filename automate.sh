@@ -7,5 +7,5 @@ run_cpp(){
 }
 
 export -f run_cpp
-seq 500 500 8000 | parallel -j16 run_cpp {}
+seq 500 500 2000 | parallel -j2 run_cpp {}
 unset -f run_cpp

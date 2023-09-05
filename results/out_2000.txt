@@ -1,3 +1,3 @@
 Allocation written to the file successfully.
-cost:1901711
-Time taken: 59006 ms
+cost:5971886072380
+Time taken: 179261 ms
