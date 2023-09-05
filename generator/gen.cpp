@@ -6,7 +6,8 @@ mt19937 gen(steady_clock::now().time_since_epoch().count());
 int main()
 {
     srand(time(0));
-    int z,l,time,maxval;
+    int z,l,maxval;
+    double time;
     cout<<"enter z:";
     cin>>z;
     cout<<"enter l:";

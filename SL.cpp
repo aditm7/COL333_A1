@@ -5,8 +5,8 @@ void SportsLayout::set_iterations(){
     if(l<=20) this->it = 10000;
     else if(l<=50) this->it = 7500;
     else if(l<=100) this->it = 4000;
-    else if(l<=400) this->it = 2000;
-    else if(l<=600) this->it = 1500;
+    else if(l<=400) this->it = 2500;
+    else if(l<=600) this->it = 1000;
     else this->it=1000;
 }
 
