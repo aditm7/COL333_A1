@@ -12,7 +12,7 @@ struct SportsLayout{
     int **N;
     double time;
     int *mapping;
-    chrono::steady_clock::time_point start;
+    chrono::high_resolution_clock::time_point start;
     
     SportsLayout(string inputfilename);
 

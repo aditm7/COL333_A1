@@ -5,7 +5,6 @@ int *SportsLayout::find_best_mapping()
     int *best_mp = new int[z];
     int best_cost = INT_MAX;
     this->simulated_annealing(best_mp, best_cost);
-    // this->greedy_with_restarts(best_mp, best_cost);
     return best_mp;
 }
 

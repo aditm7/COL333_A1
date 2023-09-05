@@ -94,8 +94,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
 
     while (iterations--)
     {
-      auto stop = high_resolution_clock::now();
-      auto duration = duration_cast<milliseconds>(stop - start);
       if (exit_indicator())
         goto exit_label;
       // return;
