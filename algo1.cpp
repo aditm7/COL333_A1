@@ -120,7 +120,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
   while (!exit_indicator())
   {
     int *temp = generate_random_mapping();
-    rand_flag=true;
+    rand_flag=false;
 
     for (int i = 0; i < z; i++)
     {
@@ -148,6 +148,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
       int init_bc = curr_best_cost; 
       next_state_greedy(used_locations, contri);
       if(curr_best_cost>= init_bc) rand_flag=true;
+      else rand_flag = false;
     }
 
   exit_label:
