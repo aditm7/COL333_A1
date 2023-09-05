@@ -16,9 +16,7 @@ int main(int argc, char** argv )
     string outputfilename ( argv[2] );
 
     SportsLayout *s  = new SportsLayout( inputfilename );
-    int it_num(stoi(argv[3]));
-    s->it=it_num;
-
+    s->set_iterations();
     s->start = high_resolution_clock::now();
     s->compute_allocation(s->find_best_mapping());
     s->write_to_file(outputfilename);

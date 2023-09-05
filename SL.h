@@ -39,8 +39,8 @@ struct SportsLayout{
     int* find_best_mapping();
     
     void greedy_with_restarts(int* best_mp,long long &best_cost);
-    
-    void simulated_annealing(int* best_mp,int &best_cost);
+        
+    void set_iterations();
 
 };
 #endif

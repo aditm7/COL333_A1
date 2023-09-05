@@ -5,7 +5,7 @@
 	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
 run%:
 	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
-	./bin/main$*.out ./io_files/in.txt ./io_files/out$*.txt 1000
+	./bin/main$*.out ./io_files/in.txt ./io_files/out$*.txt
 gen:
 	g++ ./generator/gen.cpp -o ./bin/gen.out -std=c++17
 	./bin/gen.out
@@ -16,4 +16,4 @@ test%:
 
 zip:
 	cp algo4.cpp algo.cpp
-	zip -jo 2020EE10458_2020EE10490.zip SL.h SL.cpp main.cpp algo.cpp compile.sh run.sh writeup.txt
+	zip 2020EE10458_2020EE10490.zip SL.h SL.cpp main.cpp algo.cpp compile.sh run.sh writeup.txt
