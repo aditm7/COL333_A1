@@ -11,17 +11,17 @@ int *SportsLayout::find_best_mapping()
 
 void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
 {
-  auto start = high_resolution_clock::now();
   int *curr_mp = new int[z];
   int curr_cost, curr_best_cost = INT_MAX;
   int *curr_best_mp = new int[z];
   double threshold = 0.0;
   bool rand_flag = false;
   uniform_int_distribution<int> rnd2(0, z - 1);
-  auto next_state_greedy = [&](vector<bool> &used_locations, set<pair<int, int>> &contri, vector<int> &unused_locations)
+  auto next_state_greedy = [&](vector<bool> &used_locations, vector<int> &unused_locations)
   {
-    int i = (*(--contri.end())).second;
-    int initial_contribution = (*(--contri.end())).first;
+    int i;long long initial_contribution;
+    // i = (*(--contri.end())).second;
+    // initial_contribution = (*(--contri.end())).first;
     if (rand_flag)
     {
       i = rnd2(gen);
@@ -53,8 +53,8 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
     curr_mp[i] = best_location;
     used_locations[curr_location] = false;
     used_locations[best_location] = true;
-    contri.erase({initial_contribution, i});
-    contri.insert({find_contribution(curr_mp, i), i});
+    // contri.erase({initial_contribution, i});
+    // contri.insert({find_contribution(curr_mp, i), i});
     if (best_location_idx != -1)
       unused_locations[best_location_idx] = curr_location;
     curr_cost = cost_fn(curr_mp);
@@ -69,8 +69,7 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
 
   uniform_real_distribution<double> prob(0.0, 1.0);
   uniform_int_distribution<int> rnd3(0, l - z - 1);
-  double time_var = (time * 1.0 * 60 - 1) * 1000;
-  auto next_state_random = [&](vector<bool> &used_locations, set<pair<int, int>> &contri, vector<int> &unused_locations)
+  auto next_state_random = [&](vector<bool> &used_locations,vector<int> &unused_locations)
   {
     int idx = rnd2(gen);
     int loc = rnd3(gen);
@@ -88,8 +87,8 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
         for (int j = 0; j < z; j++)
           curr_best_mp[j] = curr_mp[j];
       }
-      contri.erase({initial_contribution, idx});
-      contri.insert({final_contribution, idx});
+      // contri.erase({initial_contribution, idx});
+      // contri.insert({final_contribution, idx});
       used_locations[curr_mp[idx]] = 1;
       unused_locations[loc] = curr_location;
     }
@@ -102,13 +101,11 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
 
   vector<bool> used_locations(l + 1, false);
   vector<int> unused_locations;
-  auto globalstop = high_resolution_clock::now();
-  auto globalduration = duration_cast<milliseconds>(globalstop - start);
-  while (globalduration.count() < time_var)
+  while (!exit_indicator())
   {
     int *temp = generate_random_mapping();
     threshold = 0.0;
-    rand_flag = false;
+    rand_flag = true;
     for (int i = 0; i < z; i++)
     {
       curr_mp[i] = temp[i];
@@ -125,31 +122,28 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
     for (int i = 1; i <= l; i++)
       if (used_locations[i] == 0)
         unused_locations.push_back(i);
-    set<pair<int, int>> contri;
-    for (int i = 0; i < z; i++)
-      contri.insert({find_contribution(curr_mp, i), i});
+    // set<pair<int, int>> contri;
+    // for (int i = 0; i < z; i++)
+    //   contri.insert({find_contribution(curr_mp, i), i});
 
-    int iterations = 2000;
+    int iterations = 4000;
     int it = iterations;
     while (iterations--)
     {
-      auto stop = high_resolution_clock::now();
-      auto duration = duration_cast<milliseconds>(stop - start);
-      if (duration.count() >= (time * 1.0 * 60 - 1) * 1000)
-        return;
+      if (exit_indicator()) return;
       if (prob(gen) >= threshold)
       {
-        next_state_random(used_locations, contri, unused_locations);
+        next_state_random(used_locations, unused_locations);
         threshold = (double)(it - iterations) / (double)(it * 1.0);
       }
       else
       {
         int init_bc = curr_best_cost;
-        next_state_greedy(used_locations, contri, unused_locations);
+        next_state_greedy(used_locations, unused_locations);
         if (curr_best_cost >= init_bc)
           rand_flag = true;
-        if (curr_best_cost < init_bc)
-          rand_flag = false;
+        // if (curr_best_cost < init_bc)
+        //   rand_flag = false;
         threshold = (double)(it - iterations) / (double)(it * 1.0);
       }
     }
@@ -160,9 +154,7 @@ void SportsLayout::simulated_annealing(int *best_mp, int &best_cost)
       for (int i = 0; i < z; i++)
         best_mp[i] = curr_best_mp[i];
     }
-    globalstop = high_resolution_clock::now();
-    globalduration = duration_cast<milliseconds>(globalstop - start);
   }
-
+  
   return;
 }

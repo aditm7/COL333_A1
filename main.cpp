@@ -13,9 +13,11 @@ int main(int argc, char** argv )
     }
     string inputfilename ( argv[1] );
     string outputfilename ( argv[2] );
-    auto start = high_resolution_clock::now();
+    auto main_start = high_resolution_clock::now();
 
     SportsLayout *s  = new SportsLayout( inputfilename );
+    s->start = high_resolution_clock::now();
+
     s->compute_allocation(s->find_best_mapping());
     s->write_to_file(outputfilename);
     long long cost = s->cost_fn (s->mapping);
@@ -23,8 +25,8 @@ int main(int argc, char** argv )
 
     s->check_output_format();
     
-    auto stop = high_resolution_clock::now();auto duration = duration_cast<milliseconds>(stop - start);
-    cout << "Time taken: "<< duration.count() << " ms" << endl;
+    auto main_stop = high_resolution_clock::now();auto main_duration = duration_cast<milliseconds>(main_stop - main_start);
+    cout << "Time taken: "<< main_duration.count() << " ms" << endl;
     return 0;
 
 }

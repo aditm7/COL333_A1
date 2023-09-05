@@ -11,21 +11,26 @@ int *SportsLayout::find_best_mapping()
 
 void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
 {
-  auto start = high_resolution_clock::now();
-  double time_var = (time * 1.0 * 60 - 1) * 1000;
+  double time_var = (time * 60 - 1.0) * 1000;
   int *curr_mp = new int[z];
   long long curr_cost, curr_best_cost = INT_MAX;
   int *curr_best_mp = new int[z];
+  uniform_int_distribution<int> rnd_z(0,z-1);   
+  bool rand_flag = false; 
 
   auto next_state_greedy = [&](vector<bool> &used_locations, set<pair<long long, int>> &contri)
   {
     pair<long long, int> pr = *(--contri.end());
     int i = pr.second;
     long long initial_contribution = pr.first;
+    if(rand_flag){
+        i=rnd_z(gen);
+        initial_contribution = find_contribution(curr_mp,i);
+    }
     int curr_location = curr_mp[i];
     int best_location = curr_location;
     long long best_location_cost = curr_cost;
-
+    
     for (int j = 0; j < l; j++)
     {
       if (!used_locations[j + 1])
@@ -63,11 +68,10 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
   };
 
   vector<bool> used_locations(l + 1, false);
-  auto globalstop = high_resolution_clock::now();
-  auto globalduration = duration_cast<milliseconds>(globalstop - start);
-  while (globalduration.count() < time_var)
+  while (!exit_indicator())
   {
     int *temp = generate_random_mapping();
+    rand_flag=true;
 
     for (int i = 0; i < z; i++)
     {
@@ -86,17 +90,19 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
     for (int i = 0; i < z; i++)
       contri.insert({find_contribution(curr_mp, i), i});
 
-    int iterations = 4000;
+    int iterations = 5000;
 
     while (iterations--)
     {
       auto stop = high_resolution_clock::now();
       auto duration = duration_cast<milliseconds>(stop - start);
-      if (duration.count() >= time_var)
+      if (exit_indicator())
         goto exit_label;
       // return;
-
+      int init_bc = curr_best_cost; 
       next_state_greedy(used_locations, contri);
+      if(curr_best_cost>= init_bc) rand_flag=true;
+      if(curr_best_cost < init_bc) rand_flag=false;
     }
 
   exit_label:
@@ -106,8 +112,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
       for (int i = 0; i < z; i++)
         best_mp[i] = curr_best_mp[i];
     }
-    globalstop = high_resolution_clock::now();
-    globalduration = duration_cast<milliseconds>(globalstop - start);
   }
   return;
 }

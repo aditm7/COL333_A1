@@ -12,7 +12,8 @@ struct SportsLayout{
     int **N;
     double time;
     int *mapping;
-
+    chrono::steady_clock::time_point start;
+    
     SportsLayout(string inputfilename);
 
     bool check_output_format();
@@ -26,7 +27,9 @@ struct SportsLayout{
     void compute_allocation(int* mp);
     
     long long find_contribution(int* mp,int idx);
-
+    
+    bool exit_indicator();
+    
     int* generate_random_mapping();
 
     int* find_best_mapping();
