@@ -5,7 +5,7 @@
 	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
 run%:
 	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
-	./bin/main$*.out ./io_files/in.txt ./io_files/out$*.txt
+	./bin/main$*.out ./io_files/in.txt ./io_files/out$*.txt 1000
 gen:
 	g++ ./generator/gen.cpp -o ./bin/gen.out -std=c++17
 	./bin/gen.out
