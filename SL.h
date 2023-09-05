@@ -15,6 +15,9 @@ struct SportsLayout{
     chrono::high_resolution_clock::time_point start;
     
     SportsLayout(string inputfilename);
+    
+    // declare the destructor here
+    ~SportsLayout();
 
     bool check_output_format();
     

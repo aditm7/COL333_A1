@@ -7,6 +7,19 @@ SportsLayout::SportsLayout(string inputfilename)
     mapping = new int[z];
 }
 
+// Make a destructor to empty the memory allocated in the constructor.
+
+SportsLayout::~SportsLayout()
+{
+    for (int i = 0; i < l; ++i)
+        delete[] T[i];
+    delete[] T;
+    for (int i = 0; i < z; ++i)
+        delete[] N[i];
+    delete[] N;
+    delete[] mapping;
+}
+
 bool SportsLayout::check_output_format()
 {
     vector<bool> visited(l, false);

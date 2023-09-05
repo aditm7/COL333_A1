@@ -4,14 +4,13 @@ int *SportsLayout::find_best_mapping()
 {
     int *best_mp = new int[z];
     int best_cost = INT_MAX;
-    // this->simulated_annealing(best_mp, best_cost);
     this->greedy_with_restarts(best_mp, best_cost);
     return best_mp;
 }
 
 void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
 {
-  double time_var = (time * 60 - 1.0) * 1000;
+  double time_var = (time * 60.0 - 0.5) * 1000;
   int *curr_mp = new int[z];
   long long curr_cost, curr_best_cost = INT_MAX;
   int *curr_best_mp = new int[z];
@@ -33,7 +32,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
     int best_location = curr_location;
     long long best_location_cost = curr_cost;
     int globalswapindex=0;
-    int chance=-1;
+    int chance=0;
     for (int j = 0; j < l; j++)
     {
       if(j+1==curr_location)
@@ -47,12 +46,11 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
 
         if (curr_cost < best_location_cost)
         {
-          useunusedlocation = true;
           best_location_cost = curr_cost;
           best_location = j + 1;
           chance=0;
         }
-        // rollback the changes
+
         curr_cost -= temp_contri;
         curr_cost += initial_contribution;
         curr_mp[i] = curr_location;
@@ -73,7 +71,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, int &best_cost)
         long long tempocost= cost_fn(curr_mp);
         if(tempocost<best_location_cost)
         {
-          swapusedlocation = true;
           best_location_cost=tempocost;
           globalswapindex=swapindex;
           chance = 1;
