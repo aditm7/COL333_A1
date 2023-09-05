@@ -1,17 +1,11 @@
-#!/bin/zsh
-
-# Define a function to run your C++ program
-run_cpp() {
+#!/bin/bash
+run_cpp(){
     param="$1"
-    output_file="./results/out_${param}.txt"
-    ./main1.cpp -iterations $param > $output_file
+    output=$(./bin/main1.out ./io_files/in.txt ./bin/out_${param}.txt "$param" )
+    > ./results/out_${param}.txt
+    echo "$output" >> ./results/out_${param}.txt
 }
 
-# Export the function for parallel execution
 export -f run_cpp
-
-# Use parallel to run processes in parallel
-seq 500 500 4000 | parallel run_cpp {}
-
-# Remove export
+seq 500 500 4000 | parallel -j10 run_cpp {}
 unset -f run_cpp

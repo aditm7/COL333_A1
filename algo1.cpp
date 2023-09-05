@@ -3,7 +3,7 @@
 int *SportsLayout::find_best_mapping()
 {
     int *best_mp = new int[z];
-    long long best_cost = LONG_LONG_MAX;
+    long long best_cost = LONG_MAX;
     this->greedy_with_restarts(best_mp, best_cost);
     return best_mp;
 }
@@ -12,7 +12,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
 {
   double time_var = (time * 60.0 - 0.5) * 1000;
   int *curr_mp = new int[z];
-  long long curr_cost, curr_best_cost = LONG_LONG_MAX;
+  long long curr_cost, curr_best_cost = LONG_MAX;
   int *curr_best_mp = new int[z];
   uniform_int_distribution<int> rnd_z(0,z-1);   
   bool rand_flag = false; 
@@ -140,7 +140,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
       contri.insert({find_contribution(curr_mp, i), i});
 
     int iterations = this->it;
-
     while (iterations--)
     {
       if (exit_indicator())

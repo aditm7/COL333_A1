@@ -16,8 +16,10 @@ int main(int argc, char** argv )
     auto main_start = high_resolution_clock::now();
 
     SportsLayout *s  = new SportsLayout( inputfilename );
-    s->start = high_resolution_clock::now();
+    int it_num(stoi(argv[3]));
+    s->it=it_num;
 
+    s->start = high_resolution_clock::now();
     s->compute_allocation(s->find_best_mapping());
     s->write_to_file(outputfilename);
     long long cost = s->cost_fn (s->mapping);
