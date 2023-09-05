@@ -2,6 +2,7 @@
 
 int main(int argc, char** argv )
 {
+    auto main_start = high_resolution_clock::now();
 
      // Parse the input.
     if ( argc < 3 )
@@ -13,7 +14,6 @@ int main(int argc, char** argv )
     }
     string inputfilename ( argv[1] );
     string outputfilename ( argv[2] );
-    auto main_start = high_resolution_clock::now();
 
     SportsLayout *s  = new SportsLayout( inputfilename );
     s->start = high_resolution_clock::now();
