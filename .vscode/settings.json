@@ -23,7 +23,9 @@
     "random": "cpp",
     "__bit_reference": "cpp",
     "chrono": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "regex": "cpp",
+    "functional": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

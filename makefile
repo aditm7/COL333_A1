@@ -2,16 +2,16 @@
 # 2. simulated_annealing -> make run2
 # 3. totally random -> make run3
 %:
-	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
+	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17 -O3
 run%:
-	g++-9 -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
-	./bin/main$*.out ./io_files/in.txt ./out$*.txt
+	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17 -O3
+	./bin/main$*.out ./io_files/in.txt ./out.txt
 gen:
-	g++-9 ./generator/gen.cpp -o ./bin/gen.out -std=c++17
+	g++ ./generator/gen.cpp -o ./bin/gen.out -std=c++17
 	./bin/gen.out
 
 test%:
-	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17
+	g++ -o ./bin/main$*.out main.cpp SL.cpp algo$*.cpp -std=c++17 -O3
 	./automate.sh
 
 zip:

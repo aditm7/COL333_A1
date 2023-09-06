@@ -16,22 +16,19 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   uniform_int_distribution<int> rnd_z(0,z-1);   
   bool rand_flag = false;  // flag to track if the next state is good or not
 
-  auto next_state_greedy = [&](vector<short> &used_locations, set<pair<long long, int>> &contri)
+  auto next_state_greedy = [&](vector<short> &used_locations, vector<long long> &contri,pair<long long,int> &mxc)
   {
-    pair<long long, int> pr = *(--contri.end()); // get the element with the highest contribution
-    int i = pr.second; // get the index of the element with the highest contribution
-    long long initial_contribution = pr.first; 
-
+    int i = mxc.second; // get the index of the element with the highest contribution
+    long long initial_contribution = mxc.first; 
     if(rand_flag){
         // this will assign a random index in case we are stuck in a local minima
         i=rnd_z(gen);
         initial_contribution = find_contribution(curr_mp,i);
     }
-
     int curr_location = curr_mp[i];
     int best_location = curr_location;
     long long best_location_cost = curr_cost;
-    int globalswapindex=0;
+    int globalswapindex=-1;
     bool chance=false; // this variable will track if the best location is found by swapping or by using an unused location
     for (int j = 0; j < l; j++)
     {
@@ -56,57 +53,59 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
         curr_cost += initial_contribution;
         curr_mp[i] = curr_location;
       }
-      else
+      else if(used_locations[j+1]!=i)
       {
         short swapindex=used_locations[j+1]; // get the index of the element at location j+1
-
         long long swapcontri=find_contribution(curr_mp,swapindex); // get the contribution of the element at location j+1
 
+        // swap the elements at location i and j+1
         curr_mp[i]=j+1;
         curr_mp[swapindex]=curr_location;
-        // swap the elements at location i and j+1
 
         long long newicontri=find_contribution(curr_mp,i); // get the contribution of the element at location i
         long long newswapcontri=find_contribution(curr_mp,swapindex); // get the contribution of the element at location j+1
 
-        long long tempocost=curr_cost;
-
-        tempocost-=initial_contribution; // subtract the contribution of the element at location i
-        tempocost-=swapcontri; // subtract the contribution of the element at location j+1
-        tempocost+=newicontri; // add the contribution of new element at i 
-        tempocost+=newswapcontri; // add the contribution of new element at swapindex
-        if(tempocost<best_location_cost)
+        curr_cost-=initial_contribution; // subtract the contribution of the element at location i
+        curr_cost-=swapcontri; // subtract the contribution of the element at location j+1
+        curr_cost+=newicontri; // add the contribution of new element at i 
+        curr_cost+=newswapcontri; // add the contribution of new element at swapindex
+        
+        if(curr_cost<best_location_cost)
         {
-          best_location_cost=tempocost;
+          best_location_cost=curr_cost;
           globalswapindex=swapindex;
           chance = true;
         }
-        // revert to original state
-        tempocost-=newicontri;
-        tempocost-=newswapcontri;
-        tempocost+=initial_contribution;
-        tempocost+=swapcontri;
+        // rollback the changes
+        curr_cost-=newicontri;
+        curr_cost-=newswapcontri;
+        curr_cost+=initial_contribution;
+        curr_cost+=swapcontri;
         curr_mp[i]=curr_location;
         curr_mp[swapindex]=j+1;
-
       }
     }
 
 
-    if(chance==0)
+    if(chance==false)
     {
         // covers the case when the best location is found by choosing unused location
-
+        mxc = {0,-1};
         curr_mp[i] = best_location;
         used_locations[curr_location] = -1;
         used_locations[best_location] = i;
-        contri.erase(--contri.end());
-        long long best_loc_contri=find_contribution(curr_mp, i);
-        contri.insert({best_loc_contri, i});
-        curr_cost = cost_fn(curr_mp);
+        for (int idx = 0; idx < z; idx++){
+          if(idx!=i) {
+            contri[idx]+=(((long long)N[i][idx] + (long long)N[idx][i]) * (long long)(T[curr_mp[idx]-1][best_location- 1] - T[curr_mp[idx]-1][curr_location - 1]));
+            if(mxc.second<contri[idx]) mxc = {contri[idx],idx};
+          }
+        }
         
-        // curr_cost+=best_loc_contri;
-        // curr_cost-=initial_contribution;
+        long long best_loc_contri = find_contribution(curr_mp, i);
+        contri[i] = best_loc_contri;
+        if(mxc.first<contri[i]) mxc = {contri[i],i};
+        curr_cost+=best_loc_contri;
+        curr_cost-=initial_contribution;
 
         if (curr_cost < curr_best_cost)
         {
@@ -119,30 +118,29 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
     {
         // covers the case when the location is found by swapping within the mapping
         long long swapindexcontri= find_contribution(curr_mp,globalswapindex);
-        contri.erase(--contri.end());
-        if(contri.find({swapindexcontri,globalswapindex})!=contri.end())
-            contri.erase({swapindexcontri,globalswapindex});
-        
-
         used_locations[curr_mp[i]]=globalswapindex;
         used_locations[curr_mp[globalswapindex]]=i;
-
-        // curr_cost+= ((long long)N[i][globalswapindex] + (long long)N[globalswapindex][i]) * (long long)T[curr_mp[i] - 1][curr_mp[globalswapindex] - 1];
-
+        mxc = {0,-1};
         swap(curr_mp[i],curr_mp[globalswapindex]);
-        
+        for(int idx=0;idx<z;idx++){
+          if(idx!=i && idx!=globalswapindex){
+            contri[idx] += (((long long)N[i][idx] + (long long)N[idx][i]) * (long long)(T[curr_mp[idx]-1][curr_mp[i] - 1] - T[curr_mp[idx]-1][curr_mp[globalswapindex] - 1]));
+            contri[idx] += (((long long)N[globalswapindex][idx] + (long long)N[idx][globalswapindex]) * (long long)(T[curr_mp[idx]-1][curr_mp[globalswapindex] - 1] - T[curr_mp[idx]-1][curr_mp[i] - 1]));
+            if(mxc.second<contri[idx]) mxc = {contri[idx],idx};
+          }
+        }
+
         long long final_contri_i=find_contribution(curr_mp,i);
         long long final_contri_globalswapindex=find_contribution(curr_mp,globalswapindex);
-        contri.insert({final_contri_i,i});
-        contri.insert({final_contri_globalswapindex,globalswapindex});
-
-        // curr_cost-=swapindexcontri;
-        // curr_cost-=initial_contribution;
-        // curr_cost-= ((long long)N[i][globalswapindex] + (long long)N[globalswapindex][i]) * (long long)T[curr_mp[i] - 1][curr_mp[globalswapindex] - 1];
-        // curr_cost+=final_contri_i;
-        // curr_cost+=final_contri_globalswapindex;
-
-        curr_cost=cost_fn(curr_mp);
+        contri[i] = final_contri_i;
+        contri[globalswapindex] = final_contri_globalswapindex;
+        if(mxc.first<contri[i]) mxc = {contri[i],i};
+        if(mxc.first<contri[globalswapindex]) mxc = {contri[globalswapindex],globalswapindex};
+        
+        curr_cost-=swapindexcontri;
+        curr_cost-=initial_contribution;
+        curr_cost+=final_contri_i;
+        curr_cost+=final_contri_globalswapindex;
 
         if (curr_cost < curr_best_cost)
         {
@@ -155,15 +153,16 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   };
 
   vector<short> used_locations(l + 1, -1);
-
+  vector<long long> contri(z);
+  pair<long long,int> mxc = {0,-1};
   while (!exit_indicator())
   {
     int *temp = generate_random_mapping();
 
     rand_flag=false;
+    mxc = {0,-1};
 
-    for (int i = 0; i < z; i++)
-    {
+    for (int i = 0; i < z; i++){
       curr_mp[i] = temp[i];
       curr_best_mp[i] = temp[i];
     }
@@ -172,28 +171,27 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
     curr_best_cost = curr_cost;
 
     used_locations.assign(l + 1, -1);
-
     for (int i = 0; i < z; i++)
       used_locations[curr_mp[i]] = i;
 
-    set<pair<long long, int>> contri;
-
-    for (int i = 0; i < z; i++)
-      contri.insert({find_contribution(curr_mp, i), i});
-
+    
+    for (int i = 0; i < z; i++){
+      contri[i] = find_contribution(curr_mp, i);
+      if(mxc.first<contri[i]) mxc = {contri[i],i};
+    }
+    
     int iterations = this->it;
-
     while (iterations--)
     {
       if (exit_indicator())
         goto exit_label;
       long long init_bc = curr_best_cost; 
-      next_state_greedy(used_locations, contri);
+      next_state_greedy(used_locations,contri,mxc);
       if(curr_best_cost>= init_bc) rand_flag=true;
       else rand_flag = false;
     }
-  exit_label:
 
+  exit_label:
     if (curr_best_cost < best_cost)
     {
       best_cost = curr_best_cost;
