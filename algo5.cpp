@@ -155,12 +155,16 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   vector<short> used_locations(l + 1, -1);
   vector<long long> contri(z);
   pair<long long,int> mxc = {0,-1};
+  short same_counts=0;
+  int restarts=0;
+  double tuning_parameter = 1.1;
   while (!exit_indicator())
   {
     int *temp = generate_random_mapping();
-
+    restarts+=1;
     rand_flag=false;
     mxc = {0,-1};
+    same_counts=0;
 
     for (int i = 0; i < z; i++){
       curr_mp[i] = temp[i];
@@ -180,15 +184,14 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
       if(mxc.first<contri[i]) mxc = {contri[i],i};
     }
     
-    int iterations = this->it;
-    while (iterations--)
+    while (true)
     {
-      if (exit_indicator())
+      if (exit_indicator() || (short)(tuning_parameter*this->z)==same_counts)
         goto exit_label;
       long long init_bc = curr_best_cost; 
       next_state_greedy(used_locations,contri,mxc);
-      if(curr_best_cost>= init_bc) rand_flag=true;
-      else rand_flag = false;
+      if(curr_best_cost>= init_bc) {rand_flag=true;same_counts+=1;}
+      else {rand_flag = false;same_counts=0;}
     }
 
   exit_label:
@@ -199,5 +202,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
         best_mp[i] = curr_best_mp[i];
     }
   }
+  cout<<"restarts"<<" "<<restarts<<endl;
   return;
 }
