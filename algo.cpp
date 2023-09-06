@@ -155,12 +155,38 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   vector<short> used_locations(l + 1, -1);
   vector<long long> contri(z);
   pair<long long,int> mxc = {0,-1};
+  short same_counts=0;
+  int restarts=0;
+  double tuning_parameter = 1.1;
+  double threshold=0.75;
+  uniform_real_distribution<double> prob(0.0,1.0);
   while (!exit_indicator())
   {
-    int *temp = generate_random_mapping();
+    int * temp;
+    if(prob(gen)<=threshold || threshold>=0.75) temp = generate_random_mapping();
+    else
+      {
+        temp= new int[z];
+        for(int ind=0;ind<z;ind++)
+        {
+          temp[ind]=best_mp[ind];
+        }
+        int num_shuffle=z/10; if(num_shuffle&1) num_shuffle--;
+        int num_half_shuffle=num_shuffle/2;
+        uniform_int_distribution<int>indone(0,z-1);
+        uniform_int_distribution<int>indtwo(0,z-1);
+        for(int cn=0;cn<num_half_shuffle;cn++)
+        {
+          int first_ind=indone(gen);
+          int second_ind=indtwo(gen);
+          swap(temp[first_ind],temp[second_ind]);
+        }
+      }
 
+    restarts+=1;
     rand_flag=false;
     mxc = {0,-1};
+    same_counts=0;
 
     for (int i = 0; i < z; i++){
       curr_mp[i] = temp[i];
@@ -180,18 +206,19 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
       if(mxc.first<contri[i]) mxc = {contri[i],i};
     }
     
-    int iterations = this->it;
-    while (iterations--)
+    while (true)
     {
-      if (exit_indicator())
+      if (exit_indicator() || (short)(tuning_parameter*this->z)==same_counts)
         goto exit_label;
       long long init_bc = curr_best_cost; 
       next_state_greedy(used_locations,contri,mxc);
-      if(curr_best_cost>= init_bc) rand_flag=true;
-      else rand_flag = false;
+      if(curr_best_cost>= init_bc) {rand_flag=true;same_counts+=1;}
+      else {rand_flag = false;same_counts=0;}
     }
-
   exit_label:
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    threshold = 0.75*(((this->time*60*1000)-duration.count())/(this->time*60.0*1000.0));
     if (curr_best_cost < best_cost)
     {
       best_cost = curr_best_cost;
@@ -199,5 +226,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
         best_mp[i] = curr_best_mp[i];
     }
   }
+  cout<<"restarts"<<" "<<restarts<<endl;
   return;
 }
