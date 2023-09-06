@@ -8,5 +8,5 @@ for i in "${test_cases[@]}"
 do
     echo "Running test case: $i"
     #kill the process after 10 seconds
-    ./main ./io_files/$i ./out.txt
+    ./main.out ./io_files/$i ./out.txt
 done

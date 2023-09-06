@@ -15,5 +15,5 @@ test%:
 	./automate.sh
 
 zip:
-	cp algo4.cpp algo.cpp
+	cp algo5.cpp algo.cpp
 	zip 2020EE10458_2020EE10490.zip SL.h SL.cpp main.cpp algo.cpp compile.sh run.sh writeup.txt
