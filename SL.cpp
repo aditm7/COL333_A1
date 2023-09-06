@@ -8,7 +8,7 @@ void SportsLayout::set_iterations(){
     // else if(l<=400) this->it = 2500;
     // else if(l<=600) this->it = 1000;
     // else this->it=1000;
-    int num = ((this->time*60-0.3)*(10*10*10*10*10))/(this->z*(this->l+2*this->z));
+    int num = ((this->time*60-0.3)*(20*10*10*10*10))/(this->z*(this->l+2*this->z));
     this->it=num;
 }
 
