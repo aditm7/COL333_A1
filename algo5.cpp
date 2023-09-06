@@ -158,16 +158,12 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   short same_counts=0;
   int restarts=0;
   double tuning_parameter = 1.1;
-  double firstmapparameter=1.0;
-  uniform_real_distribution<double> rnd_first(0.0,1.0);
+  double threshold=0.5;
+  uniform_real_distribution<double> prob(0.0,1.0);
   while (!exit_indicator())
   {
     int * temp;
-    if(rnd_first(gen)<=firstmapparameter)
-    {
-      temp = generate_random_mapping();
-      firstmapparameter=0.5;
-    }
+    if(prob(gen)<=threshold || threshold>=0.5) temp = generate_random_mapping();
     else
       {
         temp= new int[z];
@@ -175,7 +171,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
         {
           temp[ind]=best_mp[ind];
         }
-        int num_shuffle=z/10;
+        int num_shuffle=z/10; if(num_shuffle&1) num_shuffle--;
         int num_half_shuffle=num_shuffle/2;
         uniform_int_distribution<int>indone(0,z-1);
         uniform_int_distribution<int>indtwo(0,z-1);
@@ -219,8 +215,10 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
       if(curr_best_cost>= init_bc) {rand_flag=true;same_counts+=1;}
       else {rand_flag = false;same_counts=0;}
     }
-
   exit_label:
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    threshold = 0.5*(((this->time*60*1000)-duration.count())/(this->time*60.0*1000.0));
     if (curr_best_cost < best_cost)
     {
       best_cost = curr_best_cost;
