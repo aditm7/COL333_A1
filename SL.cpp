@@ -2,12 +2,14 @@
 mt19937 gen(steady_clock::now().time_since_epoch().count());
 
 void SportsLayout::set_iterations(){
-    if(l<=20) this->it = 10000;
-    else if(l<=50) this->it = 7500;
-    else if(l<=100) this->it = 4000;
-    else if(l<=400) this->it = 2500;
-    else if(l<=600) this->it = 1000;
-    else this->it=1000;
+    // if(l<=20) this->it = 10000;
+    // else if(l<=50) this->it = 7500;
+    // else if(l<=100) this->it = 4000;
+    // else if(l<=400) this->it = 2500;
+    // else if(l<=600) this->it = 1000;
+    // else this->it=1000;
+    int num = ((this->time*60-1)*(10*10*10*10))/(this->l+this->z);
+    this->it=num;
 }
 
 SportsLayout::SportsLayout(string inputfilename)
