@@ -159,15 +159,20 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   int restarts=0;
   double tuning_parameter = 1.1;
   double firstmapparameter=1.0;
+  bool par_flag=false;
   uniform_real_distribution<double> rnd_first(0.0,1.0);
   while (!exit_indicator())
   {
     int * temp;
     if(rnd_first(gen)<=firstmapparameter)
-    {
-      temp = generate_random_mapping();
-      firstmapparameter=0.5;
-    }
+      {
+        temp = generate_random_mapping();
+        if(par_flag==false)
+        {
+          firstmapparameter=0.5;
+          par_flag=true;
+        }
+      }
     else
       {
         temp= new int[z];
@@ -186,7 +191,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
           swap(temp[first_ind],temp[second_ind]);
         }
       }
-
+    firstmapparameter-=0.05;
     restarts+=1;
     rand_flag=false;
     mxc = {0,-1};
