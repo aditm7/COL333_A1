@@ -23,7 +23,7 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
     if(rand_flag){
         // this will assign a random index in case we are stuck in a local minima
         i=rnd_z(gen);
-        initial_contribution = find_contribution(curr_mp,i);
+        initial_contribution = contri[i];
     }
     int curr_location = curr_mp[i];
     int best_location = curr_location;
