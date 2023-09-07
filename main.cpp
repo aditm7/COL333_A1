@@ -25,8 +25,8 @@ int main(int argc, char** argv )
 
     s->check_output_format();
     
-    auto main_stop = high_resolution_clock::now();auto main_duration = duration_cast<milliseconds>(main_stop - main_start);
-    cout << "Time taken: "<< main_duration.count() << " ms" << endl;
+    // auto main_stop = high_resolution_clock::now();auto main_duration = duration_cast<milliseconds>(main_stop - main_start);
+    // cout << "Time taken: "<< main_duration.count() << " ms" << endl;
     return 0;
     
 }

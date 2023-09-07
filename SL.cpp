@@ -8,7 +8,7 @@ void SportsLayout::set_iterations(){
     // else if(l<=400) this->it = 2500;
     // else if(l<=600) this->it = 1000;
     // else this->it=1000;
-    int num = ((this->time*60-0.3)*(20*10*10*10*10))/(this->z*(this->l+2*this->z));
+    int num = ((this->time*60-1)*(20*10*10*10*10))/(this->z*(this->l+2*this->z));
     this->it=num;
 }
 
@@ -174,7 +174,7 @@ long long SportsLayout::find_contribution(int *mp, int idx)
 bool SportsLayout::exit_indicator(){ //returns true when it is time to exit
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
-    return duration.count() >= (double)((time * 1.0 * 60-0.3) * 1000);
+    return duration.count() >= (double)((time * 1.0 * 60-1) * 1000);
 }
 
 
