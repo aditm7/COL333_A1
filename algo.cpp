@@ -162,35 +162,8 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
   uniform_real_distribution<double> rnd_first(0.0,1.0);
   while (!exit_indicator())
   {
-    int * temp;
-    if(rnd_first(gen)<=firstmapparameter)
-      {
-        temp = generate_random_mapping();
-        if(par_flag==false)
-        {
-          firstmapparameter=0.5;
-          par_flag=true;
-        }
-      }
-    else
-      {
-        temp= new int[z];
-        for(int ind=0;ind<z;ind++)
-        {
-          temp[ind]=best_mp[ind];
-        }
-        int num_shuffle=z/10;
-        int num_half_shuffle=num_shuffle/2;
-        uniform_int_distribution<int>indone(0,z-1);
-        uniform_int_distribution<int>indtwo(0,z-1);
-        for(int cn=0;cn<num_half_shuffle;cn++)
-        {
-          int first_ind=indone(gen);
-          int second_ind=indtwo(gen);
-          swap(temp[first_ind],temp[second_ind]);
-        }
-      }
-    firstmapparameter-=0.05;
+    int *temp = generate_random_mapping();
+
     rand_flag=false;
     mxc = {0,-1};
     same_counts=0;
@@ -214,7 +187,9 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
     }
     
     while (true)
+    while (true)
     {
+      if (exit_indicator() || (short)(tuning_parameter*this->z)==same_counts)
       if (exit_indicator() || (short)(tuning_parameter*this->z)==same_counts)
         goto exit_label;
       long long init_bc = curr_best_cost; 
@@ -222,8 +197,10 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
       if(curr_best_cost>= init_bc) {rand_flag=true;same_counts+=1;}
       else {rand_flag = false;same_counts=0;}
     }
-
   exit_label:
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    threshold = 0.75*(((this->time*60*1000)-duration.count())/(this->time*60.0*1000.0));
     if (curr_best_cost < best_cost)
     {
       best_cost = curr_best_cost;
@@ -231,5 +208,6 @@ void SportsLayout::greedy_with_restarts(int *best_mp, long long &best_cost)
         best_mp[i] = curr_best_mp[i];
     }
   }
+  cout<<"restarts"<<" "<<restarts<<endl;
   return;
 }
